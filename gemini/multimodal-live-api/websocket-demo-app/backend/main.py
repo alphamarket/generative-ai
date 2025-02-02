@@ -8,7 +8,7 @@ from websockets.legacy.server import WebSocketServerProtocol
 HOST = "us-central1-aiplatform.googleapis.com"
 SERVICE_URL = f"wss://{HOST}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent"
 
-DEBUG = False
+DEBUG = True
 
 
 async def proxy_task(
@@ -50,6 +50,8 @@ async def create_proxy(
         "Authorization": f"Bearer {bearer_token}",
     }
 
+    print(headers, flush=True)
+
     async with websockets.connect(
         SERVICE_URL, additional_headers=headers
     ) as server_websocket:
@@ -74,6 +76,8 @@ async def handle_client(client_websocket: WebSocketServerProtocol) -> None:
     # Wait for the first message from the client
     auth_message = await asyncio.wait_for(client_websocket.recv(), timeout=5.0)
     auth_data = json.loads(auth_message)
+
+    print(auth_data, flush=True)
 
     if "bearer_token" in auth_data:
         bearer_token = auth_data["bearer_token"]
